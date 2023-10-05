@@ -1,62 +1,60 @@
 <template>
-  <div class="tw-container tw-mx-4 tw-my-4">
-    <div class="tw-flex tw-flex-col tw-gap-2 tw-w-fit tw-p-2 tw-bg-gray-300">
-      <div class="tw-flex tw-flex-col tw-gap-1">
-          <div class="tw-flex-1">
-            Health : {{ charactorInfor.starts.health }}
-          </div>
-          <div class="tw-flex-1">
-            Mana : {{ charactorInfor.starts.mana }}
-          </div>
-          <div class="tw-flex-1">
-            Physic Dame : {{ realPhysicDmg }}
-          </div>
-          <div class="tw-flex-1">
-            Elemental Dame : {{ realElmDmg }}
-          </div>
-          <div class="tw-flex-1">
-            Physic Def : {{ realPhysicArmor }}
-          </div>
-          <div class="tw-flex-1">
-            Elemental Def : {{ realElmArmor }}
-          </div>
-      </div>
-      <div class="tw-border tw-p-2">
-        <div v-for="root in charactorInfor.root" :key="root"
-          class="tw-flex tw-gap-1 tw-justify-start tw-text-center tw-items-center">
-          <div class="tw-text-base">
-            {{ root.type }} :
-          </div>
-          <div v-for="n in root.value" :key="n">
-            <q-icon :name="roots[root.type].image" :class="roots[root.type].color" />
-          </div>
-        </div>
-      </div>
+  <div class="tw-w-screen">
+    <div>
+      <q-dialog v-model="showStarts">
+        <q-card class="tw-bg-stone-500">
+          <q-card-section>
+            <StartsComponent :starts="characterInfor.starts" :equipments="characterInfor.equipments">
+            </StartsComponent>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </div>
-
+    <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-4 tw-h-screen">
+      <CharacterComponent :infor="characterInfor.infor" v-on:change="startHunting"></CharacterComponent>
+    </div>
+    <div>
+      <q-dialog v-model="showEquips">
+        <q-card class="tw-bg-stone-500">
+          <q-card-section>
+            <EquipsComponent :equips="characterInfor.equipments"></EquipsComponent>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+    </div>
+    <div>
+      <q-dialog v-model="isHunting">
+        <q-card class="tw-bg-stone-500">
+          <q-card-section>
+            <TestComponent></TestComponent>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import {
+  reactive, ref, onMounted,
+} from 'vue';
+import StartsComponent from 'src/components/StartsComponent.vue';
+import EquipsComponent from 'src/components/EquipsComponent.vue';
+import CharacterComponent from 'src/components/CharacterComponent.vue';
+import TestComponent from 'src/components/sample/TestComponent.vue';
 
-const roots = ref({
-  Fire: { image: 'local_fire_department', color: 'tw-text-red-400' },
-  Thunder: { image: 'bolt', color: 'tw-text-purple-400' },
-  Water: { image: 'water_drop', color: 'tw-text-blue-400' },
-  Grass: { image: 'grass', color: 'tw-text-green-400' },
-  Wind: { image: 'air', color: 'tw-text-sky-400' },
-});
-
-const charactorInfor = reactive({
+const showStarts = ref(false);
+const showEquips = ref(false);
+const isHunting = ref(false);
+const characterInfor = reactive({
   infor: {
     charName: 'Nguyen Van A',
-    model: 'C:\\Users\\HienNH\\Pictures\\bcdg.jpg',
+    model: '/images/bcdg.jpg',
     level: {
       title: 'Normal people',
       currentLevel: 0,
       currentExp: 0,
-      toNextLevel: 100,
+      toNextLevel: 10,
     },
   },
   starts: {
@@ -64,53 +62,53 @@ const charactorInfor = reactive({
     mana: 100,
     baseDamge: 1,
     baseElmDame: 0,
-    basePhysicDef: 0,
+    basePhsDef: 0,
     baseElmDef: 0,
+    root: [
+      { type: 'Fire', value: 5 },
+      { type: 'Thunder', value: 1 },
+      { type: 'Water', value: 2 },
+      { type: 'Grass', value: 3 },
+      { type: 'Wind', value: 1 },
+    ],
   },
-  root: [
-    { type: 'Fire', value: 5 },
-    { type: 'Thunder', value: 1 },
-    { type: 'Water', value: 2 },
-    { type: 'Grass', value: 3 },
-    { type: 'Wind', value: 1 },
-  ],
   equipments: {
     head: {
-      name: '', physicArmor: 0, elmArmor: 0, enchant: 0,
+      name: 'Viking helmet', phsArmor: 1, elmArmor: 1, image: '/images/viking_helmet.png',
     },
     hand: {
-      name: '', enchant: 0, physicDame: 1, elmDame: 0,
+      name: 'Wooden Staff', type: 2, phsDame: 4, elmDame: 0, image: '/images/2hand_axe.png',
     },
     coat: {
-      name: '', physicArmor: 0, elmArmor: 0, enchant: 0,
+      name: 'Viking Coat', phsArmor: 1, elmArmor: 0, image: '/images/viking_coat.png',
     },
-    pants: {
-      name: '', physicArmor: 0, elmArmor: 0, enchant: 0,
+    pant: {
+      name: 'Leather Pant', phsArmor: 1, elmArmor: 0, image: '/images/m_leather_pant.png',
     },
   },
 });
 
-const realPhysicDmg = ref(0);
-const realElmDmg = ref(0);
-const realPhysicArmor = ref(0);
-const realElmArmor = ref(0);
-
-const calculateRealStart = () => {
-  realPhysicDmg.value = charactorInfor.starts.basePhysicDef
-    + charactorInfor.equipments.hand.physicDame;
-  realElmDmg.value = charactorInfor.starts.baseElmDame
-    + charactorInfor.equipments.hand.elmDame;
-  realPhysicArmor.value = charactorInfor.starts.basePhysicDef
-    + charactorInfor.equipments.head.physicArmor
-    + charactorInfor.equipments.coat.physicArmor
-    + charactorInfor.equipments.pants.physicArmor;
-  realElmArmor.value = charactorInfor.starts.baseElmDef
-    + charactorInfor.equipments.head.elmArmor
-    + charactorInfor.equipments.coat.elmArmor
-    + charactorInfor.equipments.pants.elmArmor;
+const startHunting = (val) => {
+  isHunting.value = val;
+  if (isHunting.value) {
+    characterInfor.infor.level.currentExp += 1;
+  }
 };
+
 onMounted(() => {
-  calculateRealStart();
-  console.log(roots.value);
+  document.addEventListener('keydown', (event) => {
+    switch (event.code) {
+      case 'KeyE':
+        showStarts.value = false;
+        showEquips.value = !showEquips.value;
+        break;
+      case 'KeyS':
+        showEquips.value = false;
+        showStarts.value = !showStarts.value;
+        break;
+      default:
+        break;
+    }
+  });
 });
 </script>
